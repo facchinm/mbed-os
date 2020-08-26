@@ -514,13 +514,15 @@ void lctrFreeConnCtx(lctrConnCtx_t *pCtx)
     WsfMsgFree(pBuf);
   }
 
+  uint16_t handle = LCTR_GET_CONN_HANDLE(pCtx);
+
+  lmgrPersistCb.sendCompCback(handle, numTxBufs);
+
   /* Cleanup timers. */
   WsfTimerStop(&pCtx->tmrSupTimeout);
   WsfTimerStop(&pCtx->tmrProcRsp);
   WsfTimerStop(&pCtx->tmrPingTimeout);
   WsfTimerStop(&pCtx->tmrAuthTimeout);
-
-  uint16_t handle = LCTR_GET_CONN_HANDLE(pCtx);
 
   /* VS cleanup. */
   if (pLctrVsHdlrs && pLctrVsHdlrs->connCleanup)
