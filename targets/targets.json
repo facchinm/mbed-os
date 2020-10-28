@@ -3138,6 +3138,8 @@
             }
         },
         "macros_add": [
+            "MBEDTLS_FS_IO",
+            "MBEDTLS_SHA1_C",
             "CM4_BOOT_BY_APPLICATION",
             "QSPI_NO_SAMPLE_SHIFT"
         ],
