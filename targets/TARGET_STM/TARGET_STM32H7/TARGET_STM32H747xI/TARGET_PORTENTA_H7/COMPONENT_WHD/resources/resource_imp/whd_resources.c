@@ -68,14 +68,8 @@ resource_result_t resource_read(const resource_hnd_t *resource, uint32_t offset,
 *               Variable Definitions
 ******************************************************/
 
-#ifdef WLAN_MFG_FIRMWARE
-extern const resource_hnd_t wifi_mfg_firmware_image;
-extern const resource_hnd_t wifi_mfg_firmware_clm_blob;
-#else
 extern const resource_hnd_t wifi_firmware_image;
 extern const resource_hnd_t wifi_firmware_clm_blob;
-#endif
-
 unsigned char r_buffer[BLOCK_BUFFER_SIZE];
 
 #if defined(WHD_DYNAMIC_NVRAM)
@@ -110,25 +104,22 @@ resource_result_t resource_read(const resource_hnd_t *resource, uint32_t offset,
 #ifdef USES_RESOURCE_GENERIC_FILESYSTEM
     else
     {
-        wiced_file_t file_handle;
-        uint64_t size64;
-        uint64_t maxsize64 =  maxsize;
-        if (WICED_SUCCESS !=
-            wiced_filesystem_file_open (&resource_fs_handle, &file_handle, resource->val.fs.filename,
-                                        WICED_FILESYSTEM_OPEN_FOR_READ) )
+        int file_handle = -1;
+        if (WHD_SUCCESS !=
+            wiced_filesystem_file_open (&file_handle, resource->val.fs.filename) )
         {
-            return RESOURCE_FILE_OPEN_FAIL;
+            return WHD_BADARG;
         }
-        if (WICED_SUCCESS != wiced_filesystem_file_seek (&file_handle, (offset + resource->val.fs.offset), SEEK_SET) )
-        {
-            return RESOURCE_FILE_SEEK_FAIL;
-        }
-        if (WICED_SUCCESS != wiced_filesystem_file_read (&file_handle, buffer, maxsize64, &size64) )
+        if (WHD_SUCCESS != wiced_filesystem_file_seek (&file_handle, (offset + resource->val.fs.offset)) )
         {
             wiced_filesystem_file_close (&file_handle);
-            return RESOURCE_FILE_READ_FAIL;
+            return WHD_BADARG;
         }
-        *size = (uint32_t)size64;
+        if (WHD_SUCCESS != wiced_filesystem_file_read (&file_handle, buffer, *size, &size) )
+        {
+            wiced_filesystem_file_close (&file_handle);
+            return WHD_BADARG;
+        }
         wiced_filesystem_file_close (&file_handle);
     }
 #else
@@ -179,13 +170,9 @@ uint32_t host_platform_resource_size(whd_driver_t whd_drv, whd_resource_type_t r
         }
         wiced_waf_app_get_size(&wifi_app, size_out);
 #else
-#ifdef WLAN_MFG_FIRMWARE
-        *size_out = (uint32_t)resource_get_size(&wifi_mfg_firmware_image);
-#else
         *size_out = (uint32_t)resource_get_size(&wifi_firmware_image);
-#endif /* WLAN_MFG_FIRMWARE */
-#endif /* WIFI_FIRMWARE_IN_MULTI_APP */
-#endif /* NO_WIFI_FIRMWARE */
+#endif
+#endif
 
     }
     else if (resource == WHD_RESOURCE_WLAN_NVRAM)
@@ -194,11 +181,7 @@ uint32_t host_platform_resource_size(whd_driver_t whd_drv, whd_resource_type_t r
     }
     else
     {
-#ifdef WLAN_MFG_FIRMWARE
-        *size_out = (uint32_t)resource_get_size(&wifi_mfg_firmware_clm_blob);
-#else
         *size_out = (uint32_t)resource_get_size(&wifi_firmware_clm_blob);
-#endif /* WLAN_MFG_FIRMWARE */
     }
     return WHD_SUCCESS;
 }
@@ -225,13 +208,8 @@ uint32_t host_get_resource_block(whd_driver_t whd_drv, whd_resource_type_t type,
 
     if (type == WHD_RESOURCE_WLAN_FIRMWARE)
     {
-#ifdef WLAN_MFG_FIRMWARE
-        result = resource_read( (const resource_hnd_t *)&wifi_mfg_firmware_image, read_pos, block_size, size_out,
-                                r_buffer );
-#else
         result = resource_read( (const resource_hnd_t *)&wifi_firmware_image, read_pos, block_size, size_out,
                                 r_buffer );
-#endif /* WLAN_MFG_FIRMWARE */
         if (result != WHD_SUCCESS)
         {
             return result;
@@ -261,15 +239,9 @@ uint32_t host_get_resource_block(whd_driver_t whd_drv, whd_resource_type_t type,
     }
     else
     {
-#ifdef WLAN_MFG_FIRMWARE
-        result = resource_read( (const resource_hnd_t *)&wifi_mfg_firmware_clm_blob, read_pos, block_size,
-                                size_out,
-                                r_buffer );
-#else
         result = resource_read( (const resource_hnd_t *)&wifi_firmware_clm_blob, read_pos, block_size,
                                 size_out,
                                 r_buffer );
-#endif /* WLAN_MFG_FIRMWARE */
         if (result != WHD_SUCCESS)
         {
             return result;
