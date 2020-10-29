@@ -127,6 +127,8 @@ void CyH4TransportDriver::initialize()
     bt_power = 0;
     rtos::ThisThread::sleep_for(1ms);
 
+    uart.baud(DEF_BT_BAUD_RATE);
+
     uart.format(
         /* bits */ 8,
         /* parity */ mbed::SerialBase::None,
