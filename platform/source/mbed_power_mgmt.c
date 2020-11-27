@@ -138,7 +138,7 @@ static sleep_statistic_t *sleep_tracker_add(const char *const filename)
 
 static void sleep_tracker_print_stats(void)
 {
-    mbed_error_printf("Sleep locks held:\r\n");
+    bool once = true;
     for (int i = 0; i < STATISTIC_COUNT; ++i) {
         if (sleep_stats[i].count == 0) {
             continue;
@@ -146,6 +146,11 @@ static void sleep_tracker_print_stats(void)
 
         if (sleep_stats[i].identifier[0] == '\0') {
             return;
+        }
+
+        if (once) {
+            mbed_error_printf("Sleep locks held:\r\n");
+            once = false;
         }
 
         mbed_error_printf("[id: %s, count: %u]\r\n", sleep_stats[i].identifier,
