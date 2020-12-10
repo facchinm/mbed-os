@@ -3164,7 +3164,7 @@
         "overrides": {
             "system_power_supply": "PWR_SMPS_1V8_SUPPLIES_LDO",
             "clock_source": "USE_PLL_HSE_EXTC",
-            "lse_available": 1,
+            "lse_available": 0,
             "lpticker_delay_ticks": 0,
             "network-default-interface-type": "ETHERNET"
         },
