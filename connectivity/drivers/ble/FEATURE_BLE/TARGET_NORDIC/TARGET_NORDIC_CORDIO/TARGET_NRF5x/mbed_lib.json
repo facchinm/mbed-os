@@ -8,7 +8,7 @@
         },
         "hci-driver-buffer-size": {
             "help": "Defines the memory to be allocated by the NRFCordiHciDriver.",
-            "value": 12500
+            "value": 13000
         },
         "wsf-pool-buffer-size": {
             "help": "Defines the memory allocated for the wsf memory pool.",
