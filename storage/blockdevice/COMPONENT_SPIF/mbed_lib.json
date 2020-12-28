@@ -69,10 +69,10 @@
            "SPI_CS":   "SPI_CS1"
        },
        "UNISENSE": {
-           "SPI_MOSI": "P0_13",
-           "SPI_MISO": "P0_14",
-           "SPI_CLK":  "P0_12",
-           "SPI_CS":   "P0_5"
+           "SPI_MOSI": "SPI_PSELMOSI0",
+           "SPI_MISO": "SPI_PSELMISO0",
+           "SPI_CLK":  "SPI_PSELSCK0",
+           "SPI_CS":   "CS_FLASH"
        }
     }
 }
