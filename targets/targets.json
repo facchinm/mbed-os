@@ -5921,6 +5921,9 @@
     },
     "UNISENSE": {
         "inherits": ["MCU_NRF52832"],
+        "components_add": [
+            "FLASHIAP"
+        ],
         "release_versions": ["5"],
         "device_name": "nRF52832_xxAA",
         "macros_add": [
