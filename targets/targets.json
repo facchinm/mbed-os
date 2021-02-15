@@ -7667,6 +7667,7 @@
             "ANALOGIN",
             "PORT_IN",
             "PORT_OUT",
+            "USBDEVICE",
             "SERIAL"
         ]
     },
