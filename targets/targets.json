@@ -3184,6 +3184,40 @@
             "CORE_CM7"
         ]
     },
+    "BORMIO": {
+        "inherits": ["MCU_STM32H747xI_CM7"],
+        "overrides": {
+            "system_power_supply": "PWR_LDO_SUPPLY",
+            "clock_source": "USE_PLL_HSI",
+            "lse_available": 0,
+            "lpticker_delay_ticks": 0
+        },
+        "macros_add": [
+            "MBEDTLS_FS_IO",
+            "MBEDTLS_SHA1_C",
+            "CM4_BOOT_BY_APPLICATION",
+            "QSPI_NO_SAMPLE_SHIFT"
+        ],
+        "config": {
+            "usb_speed": "USE_USB_OTG_FS"
+        },
+        "device_has_add": [
+            "USBDEVICE",
+            "QSPI"
+        ],
+        "extra_labels_add": [
+            "CORDIO"
+        ],
+        "features": [
+            "BLE"
+        ],
+        "components_add": [
+            "QSPIF",
+            "WHD",
+            "4343W",
+            "CYW43XXX"
+        ]
+    },
     "PORTENTA_H7_M4": {
         "inherits": ["PORTENTA_H7"],
         "core": "Cortex-M4F",
