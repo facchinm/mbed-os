@@ -7950,6 +7950,7 @@
     },
     "RP2040": {
         "inherits": ["Target"],
+        "components_add": ["FLASHIAP"],
         "core": "Cortex-M0+",
         "supported_toolchains": ["GCC_ARM"],
         "extra_labels": [
@@ -7964,6 +7965,7 @@
         },
         "device_has": [
             "ANALOGIN",
+            "FLASH",
             "I2C",
             "INTERRUPTIN",
             "PORT_IN",
