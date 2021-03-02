@@ -69,7 +69,7 @@ static int num=0;
 #define SDIO_STA_CMDREND                SDMMC_STA_CMDREND
 #define SDIO_STA_CMDSENT                SDMMC_STA_CMDSENT
 #define SDIO_CMD_CMDTRANS               SDMMC_CMD_CMDTRANS
-#define SDIO    SDMMC1  
+#define SDIO    SDMMC2
 
 #else
 #define SDIO_CMD_CMDTRANS               0
@@ -131,9 +131,12 @@ cy_rslt_t cyhal_sdio_init(cyhal_sdio_t *obj, cyhal_gpio_t cmd, cyhal_gpio_t clk,
 {
   cy_rslt_t     ret= CY_RSLT_SUCCESS;
   
+  __HAL_RCC_GPIOB_CLK_ENABLE();
   __HAL_RCC_GPIOC_CLK_ENABLE();
   __HAL_RCC_GPIOD_CLK_ENABLE();
-  __HAL_RCC_SDMMC1_CLK_ENABLE();
+  __HAL_RCC_GPIOG_CLK_ENABLE();
+  __HAL_RCC_GPIOJ_CLK_ENABLE();
+  __HAL_RCC_SDMMC2_CLK_ENABLE();
 
   HAL_GPIO_Init(PinConfig[cmd].port, &PinConfig[cmd].config);
   HAL_GPIO_Init(PinConfig[clk].port, &PinConfig[clk].config);
@@ -144,12 +147,12 @@ cy_rslt_t cyhal_sdio_init(cyhal_sdio_t *obj, cyhal_gpio_t cmd, cyhal_gpio_t clk,
 
 #if defined(STM32H753xx)
     /* Reset SDIO Block */
-    SDMMC_PowerState_OFF( SDMMC1 );
-    __HAL_RCC_SDMMC1_FORCE_RESET( );
-    __HAL_RCC_SDMMC1_RELEASE_RESET( );
+    SDMMC_PowerState_OFF( SDMMC2 );
+    __HAL_RCC_SDMMC2_FORCE_RESET( );
+    __HAL_RCC_SDMMC2_RELEASE_RESET( );
 
     /* Enable the SDIO Clock */
-    __HAL_RCC_SDMMC1_CLK_ENABLE( );
+    __HAL_RCC_SDMMC2_CLK_ENABLE( );
 #else
     __HAL_RCC_SDIO_CLK_ENABLE();
 #endif
@@ -174,24 +177,24 @@ cy_rslt_t cyhal_sdio_init(cyhal_sdio_t *obj, cyhal_gpio_t cmd, cyhal_gpio_t clk,
     sdio_init_structure.ClockPowerSave      = SDMMC_CLOCK_POWER_SAVE_DISABLE;
     sdio_init_structure.BusWide             = SDMMC_BUS_WIDE_1B;
     sdio_init_structure.HardwareFlowControl = SDMMC_HARDWARE_FLOW_CONTROL_DISABLE;
-    ret                              = SDMMC_Init( SDMMC1, sdio_init_structure );
-    ret                             |= SDMMC_PowerState_ON( SDMMC1 );
-    ret                             |= SDMMC_SetSDMMCReadWaitMode( SDMMC1, SDMMC_READ_WAIT_MODE_CLK );
+    ret                              = SDMMC_Init( SDMMC2, sdio_init_structure );
+    ret                             |= SDMMC_PowerState_ON( SDMMC2 );
+    ret                             |= SDMMC_SetSDMMCReadWaitMode( SDMMC2, SDMMC_READ_WAIT_MODE_CLK );
     if ( ret )
     {
         return ret;
     }
    
     /* Clear all SDIO interrupts */
-    SDMMC1->ICR = (uint32_t) 0xffffffff;
+    SDMMC2->ICR = (uint32_t) 0xffffffff;
 
         /* Turn on SDIO IRQ */
     /* Must be lower priority than the value of configMAX_SYSCALL_INTERRUPT_PRIORITY */
     /* otherwise FreeRTOS will not be able to mask the interrupt */
     /* keep in mind that ARMCM7 interrupt priority logic is inverted, the highest value */
     /* is the lowest priority */
-    HAL_NVIC_EnableIRQ( (IRQn_Type) SDMMC1_IRQn );
-    HAL_NVIC_SetPriority(SDMMC1_IRQn, 5, 0);
+    HAL_NVIC_EnableIRQ( (IRQn_Type) SDMMC2_IRQn );
+    HAL_NVIC_SetPriority(SDMMC2_IRQn, 5, 0);
 
     //printf("after enable sdio: %d\n", sdio_transfer_finished_semaphore);
 
@@ -238,10 +241,6 @@ cy_rslt_t cyhal_sdio_init(cyhal_sdio_t *obj, cyhal_gpio_t cmd, cyhal_gpio_t clk,
   HAL_NVIC_SetPriority(DMA2_Stream3_IRQn, 5, 0);
 #endif
 
-  
-  
-  
-  
   if (cy_rtos_init_semaphore(&sdio_transfer_finished_semaphore, 1, 0) != WHD_SUCCESS)
   {
     cy_rtos_deinit_semaphore(&sdio_transfer_finished_semaphore);
@@ -250,7 +249,7 @@ cy_rslt_t cyhal_sdio_init(cyhal_sdio_t *obj, cyhal_gpio_t cmd, cyhal_gpio_t clk,
 
   //printf("cy_rtos_init_semaphore: %d\n", sdio_transfer_finished_semaphore);
 
-  return ret;
+  return CY_RSLT_SUCCESS;
 }
 
 
@@ -323,14 +322,14 @@ exit:
        WPRINT_MACRO( ("SDIO->CLKCR %lx \n",SDIO->CLKCR) );
        WPRINT_MACRO( ("result %lx \n", result) );
        WPRINT_MACRO( ("cyhal_sdio_send_cmd %s\n",(result==0)? "Passed":"Failed") );
-       while(1);
+       //while(1);
      }
   //  platform_mcu_powersave_enable();
 #if !defined(STM32F412xG) && !defined(STM32H753xx)
     SDIO->MASK = SDIO_MASK_SDIOITIE;
 #endif
 #if defined(STM32H753xx)
-    SDMMC1->CMD = 0;
+    SDMMC2->CMD = 0;
 #endif
 
     //PRINTF("%d %s cmd 0x%x  arg 0x%x  resp 0x%x\n",num++,(direction!=CYHAL_READ)?"Write":"Read",command,argument,(response)?*response:0);
@@ -357,7 +356,7 @@ cy_rslt_t sdio_enable_high_speed(void) {
 #endif
     sdio_init_structure.HardwareFlowControl = SDMMC_HARDWARE_FLOW_CONTROL_ENABLE;
 
-    SDMMC_Init( SDMMC1, sdio_init_structure );
+    SDMMC_Init( SDMMC2, sdio_init_structure );
     return CY_RSLT_SUCCESS;
 }
 #else
@@ -485,8 +484,8 @@ static void sdio_prepare_data_transfer( cyhal_transfer_t direction, uint32_t blo
 #endif
     
 #if defined (STM32H753xx)
-    SDMMC1->IDMACTRL  = SDMMC_ENABLE_IDMA_SINGLE_BUFF;
-    SDMMC1->IDMABASE0 = (uint32_t) dma_data_source;
+    SDMMC2->IDMACTRL  = SDMMC_ENABLE_IDMA_SINGLE_BUFF;
+    SDMMC2->IDMABASE0 = (uint32_t) dma_data_source;
 #else
     /* DMA2 Stream3 */
     DMA2_Stream3->CR   = 0;
@@ -504,7 +503,7 @@ void sdio_enable_bus_irq( void )
 #if defined(STM32F412xG)
     SDIO->MASK = SDIO_MASK_CMDRENDIE | SDIO_MASK_CMDSENTIE;
 #elif defined (STM32H753xx)
-    SDMMC1->MASK = SDMMC_IT_RXOVERR | SDMMC_IT_TXUNDERR | SDMMC_IT_DATAEND | SDMMC_IT_CMDREND | SDMMC_IT_CMDSENT;
+    SDMMC2->MASK = SDMMC_IT_RXOVERR | SDMMC_IT_TXUNDERR | SDMMC_IT_DATAEND | SDMMC_IT_CMDREND | SDMMC_IT_CMDSENT;
 #else
     SDIO->MASK = SDIO_MASK_SDIOITIE | SDIO_MASK_CMDRENDIE | SDIO_MASK_CMDSENTIE;
 #endif
@@ -539,7 +538,7 @@ cy_rslt_t cyhal_sdio_bulk_transfer(cyhal_sdio_t *obj, cyhal_transfer_t direction
 restart:
 
     sdio_transfer_failed=0;
-    SDMMC1->ICR = (uint32_t) 0xFFFFFFFF;
+    SDMMC2->ICR = (uint32_t) 0xFFFFFFFF;
     ++attempts;
 
     /* Check if we've tried too many times */
@@ -566,7 +565,7 @@ restart:
       argument = arg.value;
     }
 
-    SDMMC1->CMD |= SDMMC_CMD_CMDTRANS;
+    SDMMC2->CMD |= SDMMC_CMD_CMDTRANS;
     
     /* Prepare the SDIO for a data transfer */
     sdio_prepare_data_transfer( direction, block_size, (uint8_t*) data, (uint32_t) length );
@@ -575,9 +574,9 @@ restart:
 
     /* Send the command */
     //PRINTF("%d bs=%d argument=%x\n",num++,block_size,argument);
-    SDMMC1->ARG = argument;
+    SDMMC2->ARG = argument;
     cmd = (uint32_t) ( SDIO_CMD_53 | SDMMC_RESPONSE_SHORT | SDMMC_WAIT_NO | SDMMC_CPSM_ENABLE | SDMMC_CMD_CMDTRANS );
-    SDMMC1->CMD = cmd;
+    SDMMC2->CMD = cmd;
     /* Wait for the whole transfer to complete */
 
     //printf("cy_rtos_get_semaphore: %d\n", sdio_transfer_finished_semaphore);
@@ -649,7 +648,7 @@ exit:
 #endif
 
 #if defined(STM32H753xx)
-    SDMMC1->CMD = 0;
+    SDMMC2->CMD = 0;
 #endif
 
   //HAL_Delay(30);
@@ -672,7 +671,7 @@ void cyhal_sdio_irq_enable(cyhal_sdio_t *obj, cyhal_sdio_irq_event_t event, bool
 }
 
 #if defined (STM32H753xx)
-void SDMMC1_IRQHandler(void )
+void SDMMC2_IRQHandler(void )
 {
     uint32_t intstatus = SDIO->STA;
   //  WWD_BUS_STATS_INCREMENT_VARIABLE( sdio_intrs );
@@ -692,7 +691,7 @@ void SDMMC1_IRQHandler(void )
     {
         if ((intstatus & (SDMMC_STA_CMDREND | SDMMC_STA_CMDSENT)) != 0)
         {
-            if ( ( SDMMC1->RESP1 & 0x800 ) != 0 )
+            if ( ( SDMMC2->RESP1 & 0x800 ) != 0 )
             {
                 sdio_transfer_failed = irqstatus;
                 //sdio_transfer_finished_var = true;
@@ -700,14 +699,14 @@ void SDMMC1_IRQHandler(void )
             }
 
             /* Clear all command/response interrupts */
-            SDMMC1->ICR = (SDMMC_STA_CMDREND | SDMMC_STA_CMDSENT);
+            SDMMC2->ICR = (SDMMC_STA_CMDREND | SDMMC_STA_CMDSENT);
         }
 
         /* Check whether the external interrupt was triggered */
         if (intstatus & SDMMC_STA_SDIOIT)
         {
             /* Clear the interrupt */
-            SDMMC1->ICR = SDMMC_STA_SDIOIT;
+            SDMMC2->ICR = SDMMC_STA_SDIOIT;
             /* Mask interrupt, to be unmasked later by WICED WWD thread */
             //SDMMC1->MASK &= ~(SDMMC_MASK_SDIOITIE);//VIKR (SDMMC_ICR_SDIOITC);
             /* Inform WICED WWD thread */
@@ -718,11 +717,11 @@ void SDMMC1_IRQHandler(void )
 
         if (intstatus & SDMMC_STA_DATAEND)
         {
-            SDMMC1->ICR      = SDMMC_STA_DATAEND;
-            SDMMC1->DLEN     = 0;
-            SDMMC1->DCTRL    = SDMMC_DCTRL_SDIOEN;
-            SDMMC1->IDMACTRL = SDMMC_DISABLE_IDMA;
-            SDMMC1->CMD      = 0;
+            SDMMC2->ICR      = SDMMC_STA_DATAEND;
+            SDMMC2->DLEN     = 0;
+            SDMMC2->DCTRL    = SDMMC_DCTRL_SDIOEN;
+            SDMMC2->IDMACTRL = SDMMC_DISABLE_IDMA;
+            SDMMC2->CMD      = 0;
             //sdio_transfer_finished_var = true;
             cy_rtos_set_semaphore(&sdio_transfer_finished_semaphore, WHD_TRUE);
         }

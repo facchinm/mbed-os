@@ -341,12 +341,12 @@ typedef enum {
 
     WL_REG_ON = PJ_1,
     WL_HOST_WAKE = PJ_5,
-    WL_SDIO_0 = PC_8,
-    WL_SDIO_1 = PC_9,
-    WL_SDIO_2 = PC_10,
-    WL_SDIO_3 = PC_11,
-    WL_SDIO_CMD = PD_2,
-    WL_SDIO_CLK = PC_12,
+    WL_SDIO_0 = PB_14,
+    WL_SDIO_1 = PB_15,
+    WL_SDIO_2 = PG_11,
+    WL_SDIO_3 = PB_4,
+    WL_SDIO_CMD = PD_7,
+    WL_SDIO_CLK = PC_1,
 
     //Led mappings
     LED_RED = PC_0,  //Red

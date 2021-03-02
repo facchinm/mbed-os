@@ -32,6 +32,7 @@
 
 #include "stm32h7xx.h"
 #include "mbed_error.h"
+#include <string.h>
 
 // clock source is selected with CLOCK_SOURCE in json config
 #define USE_PLL_HSE_EXTC     0x8  // Use external clock (ST Link MCO)
@@ -212,6 +213,23 @@ uint8_t SetSysClock_PLL_HSI(void)
 
     HAL_PWREx_EnableUSBVoltageDetector();
 #endif
+
+    memset(&PeriphClkInitStruct, 0, sizeof(PeriphClkInitStruct));
+
+    PeriphClkInitStruct.PLL2.PLL2M = 32;
+    PeriphClkInitStruct.PLL2.PLL2N = 200;
+    PeriphClkInitStruct.PLL2.PLL2P = 2;
+    PeriphClkInitStruct.PLL2.PLL2Q = 4;
+    PeriphClkInitStruct.PLL2.PLL2R = 5;
+
+    PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_SDMMC | RCC_PERIPHCLK_LPUART1 | RCC_PERIPHCLK_USART234578 | RCC_PERIPHCLK_USART16;
+    PeriphClkInitStruct.Lpuart1ClockSelection = RCC_LPUART1CLKSOURCE_PLL2;
+    PeriphClkInitStruct.Usart234578ClockSelection = RCC_USART234578CLKSOURCE_PLL2;
+    PeriphClkInitStruct.Usart16ClockSelection = RCC_USART16CLKSOURCE_PLL2;
+    PeriphClkInitStruct.SdmmcClockSelection = RCC_SDMMCCLKSOURCE_PLL2;
+    if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK) {
+        return 0; // FAIL
+    }
 
     return 1; // OK
 }
