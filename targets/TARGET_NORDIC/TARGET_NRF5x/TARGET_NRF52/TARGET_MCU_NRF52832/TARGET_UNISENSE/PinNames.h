@@ -128,14 +128,14 @@ typedef enum {
     LED3 = p11,
     LED4 = p11,
 
-    INT_BQ = p18,
+    //INT_BQ = p18,
     INT_BHI260 = p14,
-    BQ_CDN = p2,
+    BQ_CDN = p25,
     INT_ESLOV = p19,
-    BHI_HOSTBOOT = p25,
-    RESET_BHI260 = p30,
+    //BHI_HOSTBOOT = p25,
+    RESET_BHI260 = p18,
 
-    BUTTON1 = INT_BQ,
+    BUTTON1 = p21,
 
     GPIO0 = p24,
     GPIO1 = p20,
