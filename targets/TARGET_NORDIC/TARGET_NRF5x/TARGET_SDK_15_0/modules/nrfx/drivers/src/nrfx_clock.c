@@ -231,7 +231,7 @@ void nrfx_clock_lfclk_start(void)
     nrf_clock_int_enable(NRF_CLOCK_INT_LF_STARTED_MASK);
 
 #if defined(NRF52832_XXAA) || defined(NRF52832_XXAB)
-    nrfx_clock_anomaly_132();
+    //nrfx_clock_anomaly_132();
 #endif
 
     nrf_clock_task_trigger(NRF_CLOCK_TASK_LFCLKSTART);
