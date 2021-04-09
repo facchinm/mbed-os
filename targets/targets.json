@@ -5919,7 +5919,7 @@
         ],
         "device_name": "nRF52832_xxAA"
     },
-    "UNISENSE": {
+    "NICLA": {
         "inherits": ["MCU_NRF52832"],
         "components_add": [
             "FLASHIAP"

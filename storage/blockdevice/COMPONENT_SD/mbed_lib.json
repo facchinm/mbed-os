@@ -134,7 +134,7 @@
           "SPI_MISO": "SPI_MISO",
           "SPI_CLK": "SPI_SCK"
         },
-        "UNISENSE": {
+        "NICLA": {
           "SPI_MOSI": "P0_13",
           "SPI_MISO": "P0_14",
           "SPI_CLK":  "P0_12",
