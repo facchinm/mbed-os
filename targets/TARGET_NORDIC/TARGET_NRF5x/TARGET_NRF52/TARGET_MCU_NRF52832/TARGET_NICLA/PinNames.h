@@ -147,6 +147,9 @@ typedef enum {
     CTS_PIN_NUMBER = NC,
     RTS_PIN_NUMBER = NC,
 
+    CONSOLE_TX = TX_PIN_NUMBER,
+    CONSOLE_RX = RX_PIN_NUMBER,
+
     // mBed interface Pins
     USBTX = TX_PIN_NUMBER,
     USBRX = RX_PIN_NUMBER,
