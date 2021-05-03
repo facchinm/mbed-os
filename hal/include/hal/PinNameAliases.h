@@ -21,8 +21,8 @@
 #define MBED_PIN_NAME_ALIASES_H
 
 /* Aliases for legacy reasons. To be removed in the next Mbed OS version */
-#define USBTX CONSOLE_TX
-#define USBRX CONSOLE_RX
+//#define USBTX CONSOLE_TX
+//#define USBRX CONSOLE_RX
 
 #if defined (TARGET_FF_ARDUINO) || (TARGET_FF_ARDUINO_UNO)
 
