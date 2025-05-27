@@ -19,6 +19,7 @@
 #if DEVICE_ANALOGIN
 
 #include "mbed_wait_api.h"
+#include "mbed_critical.h"
 #include "cmsis.h"
 #include "pinmap.h"
 #include "mbed_error.h"
